@@ -107,10 +107,12 @@ params = (Vmax1_B,
           kCD19_BMB)
 
 
-# In[18]:
 
-
-def CART_PBDK(Y, time, alpha1, alpha2, beta1, beta2, beta3, gamma1, delta1, delta2, epsilon1, epsilon2, epsilon3, gamma2):
+def CART_PBDK(Y, time, Vmax1_B, KM1_B, kp1_B, kp2_B, kp3_B, ke1_B, ke2_B, ke3_B, ke4_B, k12_B, k23_B, k34_B, k5_B, K0_B,
+              KM5_B, Vmax51_B, Vmax52_B, Vmax53_B, Vmax54_B, Vmax1_BM, KM1_BM, kp1_BM, kp2_BM, kp3_BM, ke1_BM, ke2_BM,
+              ke3_BM, ke4_BM, k12_BM, k23_BM, k34_BM, k5_BM, K0_BM, KM5_BM, Vmax51_BM, Vmax52_BM, Vmax53_BM, Vmax54_BM,
+              k1_BBM, k2_BBM, k3_BBM, k4_BBM, kCD19_BBM, k1_BMB, k2_BMB, k3_BMB, k4_BMB, kCD19_BMB):
+    
     TN_B, TCM_B, TEM_B, TE_B, CD19_B, TN_BM, TCM_BM, TEM_BM, TE_BM, CD19_BM = Y[0], Y[1], Y[2], Y[3], Y[4], Y[5], Y[6], Y[7], Y[8], Y[9]
     dTN_B = (Vmax1_B*CD19_B*TN_B)/(KM1_B+TN_B) + kp1_B*TN_B - k12_B*TN_B - ke1_B*TN_B + k1_BMB*TN_BM - k1_BBM*TN_B
         
@@ -122,7 +124,7 @@ def CART_PBDK(Y, time, alpha1, alpha2, beta1, beta2, beta3, gamma1, delta1, delt
     
     dTE_B =  k34_B*TEM_B - ke4_B*TE_B + k4_BMB*TE_BM - k4_BBM*TE_B
     
-    dCP19_B = k5_B*(1-CD19_B/K0_B)*CD19_B - (Vmax51_B*TN_B*CD19_B)/(KM5_B+CD19_B) 
+    dCD19_B = k5_B*(1-CD19_B/K0_B)*CD19_B - (Vmax51_B*TN_B*CD19_B)/(KM5_B+CD19_B) 
     - (Vmax52_B*TCM_B*CD19_B)/(KM5_B+CD19_B) - (Vmax53_B*TEM_B*CD19_B)/(KM5_B+CD19_B) 
     - (Vmax54_B*TE_B*CD19_B)/(KM5_B+CD19_B) + kCD19_BMB*CD19_BM - kCD19_BBM*CD19_B
     
@@ -136,35 +138,41 @@ def CART_PBDK(Y, time, alpha1, alpha2, beta1, beta2, beta3, gamma1, delta1, delt
     
     dTE_BM =  k34_BM*TEM_BM - ke4_BM*TE_BM - k4_BMB*TE_BM + k4_BBM*TE_B
     
-    dCP19_B = k5_B*(1-CD19_B/K0_B)*CD19_B - (Vmax51_B*TN_B*CD19_B)/(KM5_B+CD19_B) 
-    - (Vmax52_B*TCM_B*CD19_B)/(KM5_B+CD19_B) - (Vmax53_B*TEM_B*CD19_B)/(KM5_B+CD19_B) 
-    - (Vmax54_B*TE_B*CD19_B)/(KM5_B+CD19_B) + kCD19_BMB*CD19_BM - kCD19_BBM*CD19_B
+    dCD19_BM = k5_BM*(1-CD19_BM/K0_BM)*CD19_BM - (Vmax51_BM*TN_BM*CD19_BM)/(KM5_BM+CD19_BM) 
+    - (Vmax52_BM*TCM_BM*CD19_BM)/(KM5_BM+CD19_BM) - (Vmax53_BM*TEM_BM*CD19_BM)/(KM5_BM+CD19_BM) 
+    - (Vmax54_BM*TE_BM*CD19_BM)/(KM5_BM+CD19_BM) - kCD19_BMB*CD19_BM + kCD19_BBM*CD19_B
     
-    dY = np.array([((alpha1+alpha2*Y[0])/
-            (1+beta1+beta2*Y[0]+beta3*Y[0]*Y[1])-
-                gamma1*Y[0]),
-          ((delta1+delta2*Y[1])/
-                (1+epsilon1+epsilon2*Y[1]+epsilon3*Y[0]*Y[1])-
-                    gamma2*Y[1])])
+    dY = np.array([dTN_B, dTCM_B, dTEM_B, dTE_B, dCD19_B, dTN_BM, dTCM_BM, dTEM_BM, dTE_BM, dCD19_BM])
     
     return dY
 
+def plot_sol(subject_list, i):
+    plt.plot(t, sol[:, i], 'b')
+    plt.legend(loc='best')
+    plt.xlabel('t')
+    plt.ylabel(label=subject_list[i])
+    plt.grid()
+    plt.show()
+    plt.savefig(f'/Users/weiheli/mini-project/G6_mini-project/plots/{subject_list[i]}')
 
-# In[19]:
+TN_B_0 = 0
+TCM_B_0 = 0
+TEM_B_0 = 0
+TE_B_0 = 0
+CD19_B_0 = 0
+TN_BM_0 = 0
+TCM_BM_0 = 0
+TEM_BM_0 = 0
+TE_BM_0 = 0
+CD19_BM_0 = 0
 
-
-y0 = np.array([0.0, 0.0])
-t = np.arange(tStart, tEnd, 1)
+y0 = np.array([TN_B_0, TCM_B_0, TEM_B_0, TE_B_0, CD19_B_0, TN_BM_0, TCM_BM_0, TEM_BM_0, TE_BM_0, CD19_BM_0])
+t = np.arange(tStart, tEnd, 0.1)
 sol = odeint(CART_PBDK, y0, t, args=params)
 
+subject_list = ['TN_B', 'TCM_B', 'TEM_B', 'TE_B', 'CD19_B', 'TN_BM', 'TCM_BM', 'TEM_BM', 'TE_BM', 'CD19_BM']
 
-# In[20]:
+for i in range(10):
+    plot_sol(subject_list,i)
 
-
-plt.plot(t, sol[:, 0], 'b', label='GATA(t)')
-plt.plot(t, sol[:, 1], 'g', label='PU(t)')
-plt.legend(loc='best')
-plt.xlabel('t')
-plt.grid()
-plt.show()
 
