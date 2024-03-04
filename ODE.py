@@ -8,10 +8,10 @@ KM1_B = 1.13
 kp1_B = 0.0005
 kp2_B = 0.007
 kp3_B = 0.007
-ke1_B = 0
-ke2_B = 0
-ke3_B = 0
-ke4_B = 0
+ke1_B = 0.0104
+ke2_B = 0.0104
+ke3_B = 0.0104
+ke4_B = 100
 k12_B = 0.0104
 k23_B = 0.191
 k34_B = 0.355
@@ -54,7 +54,7 @@ kCD19_BMB = 0.001
           
 #set tspan
 tStart=0
-tEnd=2000
+tEnd=1000
 
 
 params = (Vmax1_B,
@@ -150,21 +150,22 @@ def plot_sol(subject_list, i):
     plt.plot(t, sol[:, i], 'b')
     plt.legend(loc='best')
     plt.xlabel('t')
-    plt.ylabel(label=subject_list[i])
+    plt.ylabel(subject_list[i])
     plt.grid()
-    plt.show()
+    # plt.show()
     plt.savefig(f'/Users/weiheli/mini-project/G6_mini-project/plots/{subject_list[i]}')
+    plt.close()
 
-TN_B_0 = 0
-TCM_B_0 = 0
-TEM_B_0 = 0
-TE_B_0 = 0
+TN_B_0 = 35 * 10**6
+TCM_B_0 = 35 * 10**6
+TEM_B_0 = 35 * 10**6
+TE_B_0 = 35 * 10**6
 CD19_B_0 = 0
 TN_BM_0 = 0
 TCM_BM_0 = 0
 TEM_BM_0 = 0
 TE_BM_0 = 0
-CD19_BM_0 = 0
+CD19_BM_0 = 500*10**3
 
 y0 = np.array([TN_B_0, TCM_B_0, TEM_B_0, TE_B_0, CD19_B_0, TN_BM_0, TCM_BM_0, TEM_BM_0, TE_BM_0, CD19_BM_0])
 t = np.arange(tStart, tEnd, 0.1)
