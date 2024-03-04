@@ -3,7 +3,7 @@ import numpy as np
 from scipy.integrate import odeint
 
 
-Vmax1_B = 1.69 *10**(-12)
+Vmax1_B = 8.46 *10**(-6)
 KM1_B = 1.13
 kp1_B = 0.0005
 kp2_B = 0.007
@@ -11,17 +11,17 @@ kp3_B = 0.007
 ke1_B = 0.0104
 ke2_B = 0.0104
 ke3_B = 0.0104
-ke4_B = 100
-k12_B = 0.0104
+ke4_B = 0.518
+k12_B = 0.140
 k23_B = 0.191
 k34_B = 0.355
 k5_B = 0
-K0_B = 5*10**6
+K0_B = 4*10**6
 KM5_B = 276*10**3
-Vmax51_B = 2.57
-Vmax52_B = 4.04
-Vmax53_B = 3.78
-Vmax54_B = 4.24
+Vmax51_B = 2570
+Vmax52_B = 4040
+Vmax53_B = 3780
+Vmax54_B = 4240
 Vmax1_BM = Vmax1_B
 KM1_BM = 1.13
 kp1_BM = kp1_B
@@ -35,26 +35,26 @@ k12_BM = k12_B
 k23_BM = k23_B
 k34_BM = k34_B
 k5_BM = 0.0023
-K0_BM = 5*10**6
+K0_BM = 1*10**6
 KM5_BM = 276*10**3
-Vmax51_BM = 2.57
-Vmax52_BM = 4.04
-Vmax53_BM = 3.78
-Vmax54_BM = 4.24
-k1_BBM = 0.4
-k2_BBM = 0.4
-k3_BBM = 0.4
-k4_BBM = 0.4
+Vmax51_BM = Vmax51_B
+Vmax52_BM = Vmax52_B
+Vmax53_BM = Vmax53_B
+Vmax54_BM = Vmax54_B
+k1_BBM = 0.11
+k2_BBM = k1_BBM
+k3_BBM = k1_BBM
+k4_BBM = k1_BBM
 kCD19_BBM = 0
-k1_BMB = 0.15
-k2_BMB = 0.15
-k3_BMB = 0.15
-k4_BMB = 0.15
+k1_BMB = 0.176
+k2_BMB = k1_BMB
+k3_BMB = k1_BMB
+k4_BMB = k1_BMB
 kCD19_BMB = 0.001
           
 #set tspan
 tStart=0
-tEnd=1000
+tEnd=100
 
 
 params = (Vmax1_B,
@@ -114,6 +114,7 @@ def CART_PBDK(Y, time, Vmax1_B, KM1_B, kp1_B, kp2_B, kp3_B, ke1_B, ke2_B, ke3_B,
               k1_BBM, k2_BBM, k3_BBM, k4_BBM, kCD19_BBM, k1_BMB, k2_BMB, k3_BMB, k4_BMB, kCD19_BMB):
     
     TN_B, TCM_B, TEM_B, TE_B, CD19_B, TN_BM, TCM_BM, TEM_BM, TE_BM, CD19_BM = Y[0], Y[1], Y[2], Y[3], Y[4], Y[5], Y[6], Y[7], Y[8], Y[9]
+    
     dTN_B = (Vmax1_B*CD19_B*TN_B)/(KM1_B+TN_B) + kp1_B*TN_B - k12_B*TN_B - ke1_B*TN_B + k1_BMB*TN_BM - k1_BBM*TN_B
         
     dTCM_B = (Vmax1_B*CD19_B*TCM_B)/(KM1_B+TCM_B) + kp2_B*TCM_B + k12_B*TN_B - k23_B*TCM_B - ke2_B*TCM_B 
@@ -146,34 +147,40 @@ def CART_PBDK(Y, time, Vmax1_B, KM1_B, kp1_B, kp2_B, kp3_B, ke1_B, ke2_B, ke3_B,
     
     return dY
 
-def plot_sol(subject_list, i):
-    plt.plot(t, sol[:, i], 'b')
-    plt.legend(loc='best')
+def plot_sol(subject_list, i, sol_1, sol_2, sol_3):
+    plt.plot(t, sol_1[:, i], 'b')
+    plt.plot(t, sol_2[:, i], 'r')
+    plt.plot(t, sol_3[:, i], 'g')
+    plt.legend(loc='best',labels=['sol1', 'sol2', 'sol3'])
     plt.xlabel('t')
-    plt.ylabel(subject_list[i])
     plt.grid()
     # plt.show()
     plt.savefig(f'/Users/weiheli/mini-project/G6_mini-project/plots/{subject_list[i]}')
     plt.close()
 
-TN_B_0 = 35 * 10**6
-TCM_B_0 = 35 * 10**6
-TEM_B_0 = 35 * 10**6
-TE_B_0 = 35 * 10**6
+TN_B_0 = 0
+TCM_B_0 = 20
+TEM_B_0 = 0
+TE_B_0 = 0
 CD19_B_0 = 0
 TN_BM_0 = 0
 TCM_BM_0 = 0
 TEM_BM_0 = 0
 TE_BM_0 = 0
-CD19_BM_0 = 500*10**3
+CD19_BM_0 = 200*10**3
 
-y0 = np.array([TN_B_0, TCM_B_0, TEM_B_0, TE_B_0, CD19_B_0, TN_BM_0, TCM_BM_0, TEM_BM_0, TE_BM_0, CD19_BM_0])
+y0_1 = np.array([TN_B_0, TCM_B_0, TEM_B_0, TE_B_0, CD19_B_0, TN_BM_0, TCM_BM_0, TEM_BM_0, TE_BM_0, CD19_BM_0])
+y0_2 = np.array([0.001, 20, 0, 0, CD19_B_0, TN_BM_0, TCM_BM_0, TEM_BM_0, TE_BM_0, CD19_BM_0])
+y0_3 = np.array([0.001, 0, 0, 20, CD19_B_0, TN_BM_0, TCM_BM_0, TEM_BM_0, TE_BM_0, CD19_BM_0])
 t = np.arange(tStart, tEnd, 0.1)
-sol = odeint(CART_PBDK, y0, t, args=params)
+sol_1 = odeint(CART_PBDK, y0_1, t, args=params)
+sol_2 = odeint(CART_PBDK, y0_2, t, args=params)
+sol_3 = odeint(CART_PBDK, y0_3, t, args=params)
+
 
 subject_list = ['TN_B', 'TCM_B', 'TEM_B', 'TE_B', 'CD19_B', 'TN_BM', 'TCM_BM', 'TEM_BM', 'TE_BM', 'CD19_BM']
 
 for i in range(10):
-    plot_sol(subject_list,i)
+    plot_sol(subject_list,i, sol_1, sol_2, sol_3)
 
 
