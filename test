@@ -1,0 +1,67 @@
+species A B C
+
+dim 2
+boundaries x 0 1
+boundaries y 0 1
+time_start 0
+time_stop 1000
+time_step 0.01
+
+color A red
+color B blue 
+color C green
+
+difc * 0.0005
+
+display_size * 0.01
+
+start_surface leftWall
+action both all reflect
+panel rect +0 0 0 1
+end_surface
+
+start_surface rightWall
+action both all reflect
+panel rect +0 1 0 1 
+end_surface
+
+start_surface middleWall
+action B both reflect
+#action A both reflect
+action C front reflect
+panel rect +0 0.5 0 1
+rate A bsoln fsoln 999 C
+end_surface
+
+start_surface topWall
+action both all reflect
+panel rect -1 0 1 1 
+end_surface
+
+start_surface bottomWall
+action both all reflect
+panel rect +1 0 0 1
+end_surface
+
+
+start_compartment blood
+surface topWall
+surface bottomWall
+surface leftWall
+surface middleWall
+point 0.25 0.5
+end_compartment
+
+start_compartment bone
+surface topWall
+surface bottomWall
+surface rightWall
+surface middleWall
+point 0.75 0.5
+end_compartment
+
+graphics opengl_good
+frame_thickness 1
+
+compartment_mol 100 A blood
+compartment_mol 100 B bone

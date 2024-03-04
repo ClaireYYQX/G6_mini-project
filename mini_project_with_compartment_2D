@@ -1,0 +1,176 @@
+#List of parameters
+define K_ON 0.1 #per molar concentration per second
+define K_OFF 0.001 # per second
+
+#System dimensionality
+dim 2
+boundaries x 0 100
+boundaries y 0 100
+time_start 0
+time_stop 1000
+time_step 0.01
+
+#Species and parameters
+species TnB TcmB TemB TeffB CD19B Comp_TnB Comp_TcmB Comp_TemB Comp_TeffB TnP TcmP TemP TeffP CD19P Comp_TnP Comp_TcmP Comp_TemP Comp_TeffP
+color Tn* lightred
+color Tcm? lightorange
+color Tem? lightgreen
+color Teff? lightblue
+color CD19? grey
+color Comp_Tn? darkred
+color Comp_Tcm? darkorange
+color Comp_Tem? darkgreen
+color Comp_Teff? darkblue
+
+difc T* 15
+difc Comp* 2.5
+difc CD19* 3
+
+
+
+display_size T* 0.5
+display_size CD19? 1.5
+display_size Comp* 1
+
+#Graphics
+graphics opengl_good
+graphic_iter 5
+frame_thickness 0
+
+
+#Surface boundary
+start_surface leftWall
+action both all reflect
+panel rect +0 0 0 100
+end_surface
+
+start_surface rightWall
+action both all reflect
+panel rect +0 100 0 100 
+end_surface
+
+start_surface middleWall
+action both Comp* reflect
+action back CD19B reflect
+rate TnP fsoln bsoln 500 TnB
+rate TnB bsoln fsoln 999 TnP
+rate TcmP fsoln bsoln 500 TcmB
+rate TcmB bsoln fsoln 999 TcmP
+rate TemP fsoln bsoln 500 TemB
+rate TemB bsoln fsoln 999 TemP
+rate TeffP fsoln bsoln 500 TeffB
+rate TeffB bsoln fsoln 999 TeffP
+rate CD19P fsoln bsoln 500 CD19B
+
+panel rect +0 50 0 100
+end_surface
+
+start_surface topWall
+action both all reflect
+panel rect -1 0 100 100 
+end_surface
+
+start_surface bottomWall
+action both all reflect
+panel rect +1 0 0 100
+end_surface
+
+
+start_compartment blood
+surface topWall
+surface bottomWall
+surface leftWall
+surface middleWall
+point 25 50
+end_compartment
+
+start_compartment peripheral
+surface topWall
+surface bottomWall
+surface rightWall
+surface middleWall
+point 75 50
+end_compartment
+
+compartment_mol 2 CD19P peripheral
+compartment_mol 1000 TnB blood
+compartment_mol 2 TcmB blood
+compartment_mol 2 TemB blood
+compartment_mol 2 TeffB blood
+
+
+##List of reactions
+#T cell Elimination
+reaction A TnB -> 0 0.0104
+reaction B TcmB -> 0 0.191
+reaction C TemB -> 0 0.355
+reaction D TeffB -> 0 0.518
+
+#Tumour Complex Formation & Dissociation
+reaction E_B TnB + CD19B -> Comp_TnB K_ON
+reaction F_B TcmB + CD19B -> Comp_TcmB K_ON
+reaction G_B TemB + CD19B -> Comp_TemB K_ON
+reaction H_B TeffB + CD19B -> Comp_TeffB K_ON
+
+reaction E_P TnP + CD19P -> Comp_TnP K_ON
+reaction F_P TcmP + CD19P -> Comp_TcmP K_ON
+reaction G_P TemP + CD19P -> Comp_TemP K_ON
+reaction H_P TeffP + CD19P -> Comp_TeffP K_ON
+
+reaction I_B Comp_TnB -> TnB + CD19B K_OFF
+reaction J_B Comp_TcmB -> TcmB + CD19B K_OFF
+reaction K_B Comp_TemB -> TemB + CD19B K_OFF
+reaction L_B Comp_TeffB -> TeffB + CD19B K_OFF
+
+reaction I_P Comp_TnP -> TnP + CD19P K_OFF
+reaction J_P Comp_TcmP -> TcmP + CD19P K_OFF
+reaction K_P Comp_TemP -> TemP + CD19P K_OFF
+reaction L_P Comp_TeffP -> TeffP + CD19P K_OFF
+
+
+#Differentiation
+reaction M_B TnB -> TcmB 0.0104 #per day per cell
+reaction N_B TcmB -> TemB 0.191 
+reaction O_B TemB -> TeffB 0.355
+
+reaction M_P TnP -> TcmP 0.0104 #per day per cell
+reaction N_P TcmP -> TemP 0.191 
+reaction O_P TemP -> TeffP 0.355
+
+
+#Baseline Proliferation (per day per cell)
+reaction P_B CD19B -> CD19B + CD19B 0.0023 #(per day)
+reaction Q_B TnB -> TnB + TnB  0.0005
+reaction R_B TcmB -> TcmB + TcmB 0.007
+reaction S_B TemB -> TemB + TemB 0.007
+
+reaction P_P CD19P -> CD19P + CD19P 0.0023 #(per day)
+reaction Q_P TnP -> TnP + TnP  0.0005
+reaction R_P TcmP -> TcmP + TcmP 0.007
+reaction S_P TemP -> TemP + TemP 0.007
+
+#Complex mediated proliferation & tumour death
+reaction T1_B Comp_TnB -> TnB + TnB + CD19B 0.1
+reaction T2_B Comp_TnB -> TnB 0.1
+reaction U1_B Comp_TcmB -> TcmB + TcmB + CD19B 0.1
+reaction U2_B Comp_TcmB -> TcmB 0.1
+reaction V1_B Comp_TemB -> TemB + TemB + CD19B 0.1
+reaction V2_B Comp_TemB -> TemB 0.1
+reaction W_B Comp_TeffB -> TeffB 0.1
+
+reaction T1_P Comp_TnP -> TnP + TnP + CD19P 0.1
+reaction T2_P Comp_TnP -> TnP 0.1
+reaction U1_P Comp_TcmP -> TcmP + TcmP + CD19P 0.1
+reaction U2_P Comp_TcmP -> TcmP 0.1
+reaction V1_P Comp_TemP -> TemP + TemP + CD19P 0.1
+reaction V2_P Comp_TemP -> TemP 0.1
+reaction W_P Comp_TeffP -> TeffP 0.1
+
+#output_files mini_project_out.txt
+
+
+end_file
+
+
+
+

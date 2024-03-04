@@ -1,0 +1,106 @@
+#List of parameters
+define K_ON 215000 #per molar concentration per second
+define K_OFF 215 # per second
+
+#System dimensionality
+dim 2
+boundaries x -1 1
+boundaries y -1 1
+time_start 0
+time_stop 1000
+time_step 0.01
+
+#Species and parameters
+species TnB TcmB TemB TeffB CD19B Comp_TnB Comp_TcmB Comp_TemB Comp_TeffB
+color TnB lightred
+color TcmB lightorange
+color TemB lightgreen
+color TeffB lightblue
+color CD19B black
+color Comp_TnB darkred
+color Comp_TcmB darkorange
+color Comp_TemB darkgreen
+color Comp_TeffB darkblue
+
+difc T* 0.0003
+difc Comp* 0.00005
+
+display_size T* 0.01
+display_size CD19B 0.03
+display_size Comp* 0.02 
+
+#Graphics
+graphics opengl_good
+graphic_iter 5
+frame_thickness 0
+
+
+#Surface
+start_surface boundary
+action both all reflect
+color both black
+thickness 1
+panel sphere 0 0 1 500
+end_surface
+
+#Compartment
+start_compartment inside
+surface boundary
+point 0 0
+end_compartment
+
+compartment_mol 2000 CD19B inside
+compartment_mol 100 TnB inside
+compartment_mol 100 TcmB inside
+compartment_mol 100 TemB inside
+compartment_mol 100 TeffB inside
+
+
+##List of reactions
+#T cell Elimination
+reaction A TnB -> 0 0.0104
+reaction B TcmB -> 0 0.191
+reaction C TemB -> 0 0.355
+reaction D TeffB -> 0 0.518
+
+#Tumour Complex Formation & Dissociation
+reaction E_B TnB + CD19B -> Comp_TnB K_ON
+reaction F_B TcmB + CD19B -> Comp_TcmB K_ON
+reaction G_B TemB + CD19B -> Comp_TemB K_ON
+reaction H_B TeffB + CD19B -> Comp_TeffB K_ON
+
+reaction I_B Comp_TnB -> TnB + CD19B K_OFF
+reaction J_B Comp_TcmB -> TcmB + CD19B K_OFF
+reaction K_B Comp_TemB -> TemB + CD19B K_OFF
+reaction L_B Comp_TeffB -> TeffB + CD19B K_OFF
+
+
+#Differentiation
+reaction M_B TnB -> TcmB 0.0104 #per day per cell
+reaction N_B TcmB -> TemB 0.191 
+reaction O_B TemB -> TeffB 0.355
+
+
+#Baseline Proliferation (per day per cell)
+reaction P_B CD19B -> CD19B + CD19B 0.0023 #(per day)
+reaction Q_B TnB -> TnB + TnB  0.0005
+reaction R_B TcmB -> TcmB + TcmB 0.007
+reaction S_B TemB -> TemB + TemB 0.007
+
+#Complex mediated proliferation & tumour death
+reaction T1_B Comp_TnB -> TnB + TnB + CD19B 0.1
+reaction T2_B Comp_TnB -> TnB 0.1
+reaction U1_B Comp_TcmB -> TcmB + TcmB + CD19B 0.1
+reaction U2_B Comp_TcmB -> TcmB 0.1
+reaction V1_B Comp_TemB -> TemB + TemB + CD19B 0.1
+reaction V2_B Comp_TemB -> TemB 0.1
+reaction W_B Comp_TeffB -> TeffB 0.1
+
+output_files mini_project_out.txt
+
+
+end_file
+
+
+
+

@@ -1,0 +1,95 @@
+#List of parameters
+define K_ON 2 #per molar concentration per second
+define K_OFF 0.003 # per second
+
+#System dimensionality
+dim 2
+boundaries x -1 1
+boundaries y -1 1
+time_start 0
+time_stop 100
+time_step 1
+
+#Species and parameters
+species TnB TcmB TemB TeffB CD19B Comp
+color TnB darkblue
+color TcmB blue
+color TemB lightblue
+color TeffB red
+color CD19B black
+color Comp green
+
+difc T* 3
+difc CD19B 1
+difc Comp 0.5
+
+display_size T* 0.01
+display_size CD19B 0.015
+display_size Comp 0.02
+
+#Graphics
+graphics opengl_good
+frame_thickness 0
+
+
+#Surface
+start_surface boundary
+action both all reflect
+color both black
+thickness 1
+panel sphere 0 0 1 50
+end_surface
+
+#Compartment
+start_compartment inside
+suface boundary
+point 0 0
+end_compartment
+
+compartment_mol 200 CD19B inside
+compartment_mol 50 TnB inside
+compartment_mol 50 TcmB inside
+compartment_mol 50 TemB inside
+compartment_mol 50 TeffB inside
+
+
+##List of reactions
+#T cell Elimination
+reaction A TnB -> 0 0.0104
+reaction B TcmB -> 0 0.191
+reaction C TemB -> 0 0.355
+reaction D TeffB -> 0 0.518
+
+#Tumour Complex Formation & Dissociation
+reaction E_B TnB + CD19B -> Comp K_ON
+reaction F_B TcmB + CD19B -> Comp K_ON
+reaction G_B TemB + CD19B -> Comp K_ON
+reaction H_B TeffB + CD19B -> Comp K_ON
+
+reaction I_B Comp -> TnB + CD19B K_OFF
+reaction J_B Comp -> TcmB + CD19B K_OFF
+reaction K_B Comp -> TemB + CD19B K_OFF
+reaction L_B Comp -> TeffB + CD19B K_OFF
+
+
+#Differentiation
+reaction M_B TnB -> TcmB 0.0104 #per day per cell
+reaction N_B TcmB -> TemB 0.191 
+reaction O_B TemB -> TeffB 0.355
+
+
+#Baseline Proliferation (per day per cell)
+reaction P_B 0 -> CD19B 0.0023 #(per day)
+reaction Q_B 0 -> TnB  0.0005
+reaction R_B 0 -> TcmB 0.007
+reaction S_B 0 -> TemB 0.007
+
+#Complex mediated proliferation & tumour death
+reaction T Comp -> TnB + TcmB + TemB 2.9 #per day
+
+
+end_file
+
+
+
+
