@@ -51,7 +51,7 @@ scales <- c(1,#A
             1,#L2
             1,#M2
             1,#N2
-            1,#O2
+            1 #O2
 )
 
 #Defining the stoicheometric matrix
