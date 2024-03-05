@@ -66,7 +66,7 @@ react_elim <- c(-scales[1],rep(0,9), #A
 colnames(react_elim) <- species
 
 #The reactions representing the differentiation of CAR-T cells in the blood
-react_diff_B <- c(-sales[5],scales[5],rep(0,8),#E
+react_diff_B <- c(-scales[5],scales[5],rep(0,8),#E
                   0,-scales[6],scales[6],rep(0,7),#F
                   0,0,-scales[7],scales[7],rep(0,6)) %>% #G
   matrix(nrow = 10) %>% t()
@@ -322,7 +322,7 @@ for(i in 2:N){                 #Loop is as long as the number of jumps given
   re_L <- ((Vmax51_B*TnB*CD19B)/(KM5_B+CD19B))/scales[12]
   re_M <- ((Vmax52_B*TcmB*CD19B)/(KM5_B+CD19B))/scales[13]
   re_N <- ((Vmax53_B*TemB*CD19B)/(KM5_B+CD19B))/scales[14]
-  re_O <- ((Vmax54_B*TeffB*CD19B)/(KM5_B+CD19B))/scale[15]
+  re_O <- ((Vmax54_B*TeffB*CD19B)/(KM5_B+CD19B))/scales[15]
   
   tumor_death_B_rates <- c(re_L,re_M,re_N,re_O)
   
@@ -365,7 +365,7 @@ for(i in 2:N){                 #Loop is as long as the number of jumps given
   #Tumor cell death in peripheral tissue
   re_I2 <- ((Vmax51_P*TnP*CD19P)/(KM5_P+CD19P))/scales[35]
   re_J2 <- ((Vmax52_P*TcmP*CD19P)/(KM5_P+CD19P))/scales[36]
-  re_K2 <- ((Vmax53_P*TemP*CD19P)/(KM5_P+CD19P))/scale[37]
+  re_K2 <- ((Vmax53_P*TemP*CD19P)/(KM5_P+CD19P))/scales[37]
   re_L2 <- ((Vmax54_P*TeffP*CD19P)/(KM5_P+CD19P))/scales[38]
   
   tumor_death_P_rates <- c(re_I2,re_J2,re_K2,re_L2)
