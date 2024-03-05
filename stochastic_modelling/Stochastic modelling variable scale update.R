@@ -272,7 +272,7 @@ KM1_P <- KM1_P *p_tissue_vol
 state_0  <- c((2*10^6)*patient_weight,0,0,0,0,0,0,0,0,(1*10^3)*tumor_density)
 
 
-N <- 10^6 #The number of reactions that will occur (jumps)
+N <- 10^8 #The number of reactions that will occur (jumps)
 t <- rep(0,N) #Time at each jump
 dt <- rep(0,N) #Size of each time step
 
@@ -401,7 +401,7 @@ plotting <- cbind(states,t) %>% data.frame() #%>% mutate(t=t)
 sub <- seq(1,N,length.out=N/100)
 sub_plotting<- plotting[sub,]
 
-path <- "Reactions6Naive2-6Tumor1-3_test21" #Change based on order of reactions, dose of CAR-T cells/kg and tumor size in ul
+path <- "Reactions8Naive2-6Tumor1-3" #Change based on order of reactions, dose of CAR-T cells/kg and tumor size in ul. Create a directory prior to running
 
 save_curve <- function(path,title){
   fn=paste0(path,"/",title,".png")
