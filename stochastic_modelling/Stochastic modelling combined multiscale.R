@@ -395,7 +395,11 @@ rate_to_scale <- function(rate){
 state_0  <- c((2*10^6)*patient_weight,0,0,0,0,0,0,0,0,(1*10^3)*tumor_density)
 
 
-N <- 10^6 #The number of reactions that will occur (jumps)
+N <- 10^8 #The number of reactions that will occur (jumps)
+rescale_gap <- 10^3  #How many reactions between scales being recalculated
+output_freq <- 10^1 #The number of times that the data is output throughout a run
+N_loop <- N/output_freq/rescale_gap
+
 t <- rep(0,N+1) #Time at each jump
 dt <- rep(0,N+1) #Size of each time step
 
@@ -404,8 +408,6 @@ colnames(states) <- species
 
 states[1,] <- state_0
 
-#To do here: determine initial scale
-
 save_curve <- function(path,iteration,title){
   fn=paste0(path,"/",iteration,"/",title,".png")
   ggsave(filename=fn,create.dir = TRUE)
@@ -413,14 +415,7 @@ save_curve <- function(path,iteration,title){
 
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-N <- 10^6 #The number of reactions that will occur (jumps) overall
-rescale_gap <- 10^2  #How many reactions between scales being recalculated
-output_freq <- 10^1 #The number of times that the data is output throughout a run
-
-N_loop <- N/output_freq/rescale_gap
-
-
-path <- "Reactions6Naive2-6Tumor1-3_auto_test" #Change based on order of reactions, dose of CAR-T cells/kg and tumor size in ul. Create a directory prior to running
+path <- "Reactions8Naive2-6Tumor1-3_multiscale" #Change based on order of reactions, dose of CAR-T cells/kg and tumor size in ul. Create a directory prior to running
 
 for(j in 1:output_freq){
   for(k in 1:N_loop){                 #Loop is as long as the number of jumps givenwa
