@@ -379,9 +379,9 @@ rate_calculation <- function(states,scales){
 #Function takes a rate given in terms of an order of magnitude, and returns how it should be scaled
 rate_to_scale <- function(rate){
   if (rate<4){
-    return(10)
+    return(1)
   } else{
-    return(10^(rate-2))
+    return(10^(rate-3))
   }
 }
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -396,26 +396,15 @@ state_0  <- c((2*10^6)*patient_weight,0,0,0,0,0,0,0,0,(1*10^3)*tumor_density)
 
 
 N <- 10^6 #The number of reactions that will occur (jumps)
-t <- rep(0,N) #Time at each jump
-dt <- rep(0,N) #Size of each time step
+t <- rep(0,N+1) #Time at each jump
+dt <- rep(0,N+1) #Size of each time step
 
-states <- matrix(0,nrow=N,ncol=10) #The state matrix
+states <- matrix(0,nrow=N+1,ncol=10) #The state matrix
 colnames(states) <- species
 
 states[1,] <- state_0
 
 #To do here: determine initial scale
-
-rates_0 <- rate_calculation(state0,blank_scales) #Calculates the unadjusted rate of each reaction
-
-adjusted_scales <- (rates_0+0.001) %>% #To not break for rate=0
-  log(base=10) %>% 
-  floor() %>% #convert to an order of magnitude
-  lapply(rates_con, rate_to_scale) %>% #Scale according to the rate_to_scale function
-  unlist
-
-rates_recalc <- rate_calculation(state_0,adjusted_scales)
-s_mat_recalc <- set_smat(adjusted_scales) #New stoicheometric matrix generating according to the scaled rates
 
 save_curve <- function(path,iteration,title){
   fn=paste0(path,"/",iteration,"/",title,".png")
@@ -425,16 +414,16 @@ save_curve <- function(path,iteration,title){
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 N <- 10^6 #The number of reactions that will occur (jumps) overall
-rescale_gap <- 10^3  #How many reactions between scales being recalculated
-output_gap <- 10^1 #The number of times that the data is output throughout a run
+rescale_gap <- 10^2  #How many reactions between scales being recalculated
+output_freq <- 10^1 #The number of times that the data is output throughout a run
 
-N_loop <- N/output_gap/rescale_gap
+N_loop <- N/output_freq/rescale_gap
 
 
-path <- "Reactions6Naive2-6Tumor1-3_split" #Change based on order of reactions, dose of CAR-T cells/kg and tumor size in ul. Create a directory prior to running
+path <- "Reactions6Naive2-6Tumor1-3_auto_test" #Change based on order of reactions, dose of CAR-T cells/kg and tumor size in ul. Create a directory prior to running
 
-for(j in output_gap){
-  for(k in N_loop){                 #Loop is as long as the number of jumps given
+for(j in 1:output_freq){
+  for(k in 1:N_loop){                 #Loop is as long as the number of jumps givenwa
     #Every rescale gap loops the scale is recalculated
     current_iter <- (k-1)*rescale_gap +(j-1)*N_loop +1
     recent_state <- states[current_iter,]
@@ -444,14 +433,14 @@ for(j in output_gap){
     adjusted_scales <- (rates_0+0.001) %>% #To not break for rate=0
       log(base=10) %>% 
       floor() %>% #convert to an order of magnitude
-      lapply(rates_con, rate_to_scale) %>% #Scale according to the rate_to_scale function
+      lapply(rate_to_scale) %>% #Scale according to the rate_to_scale function
       unlist
     
     rates_recalc <- rate_calculation(recent_state,adjusted_scales)
     s_mat_recalc <- set_smat(adjusted_scales) #New stoicheometric matrix generating according to the scaled rates
     
-    for(i in rescale_gap){
-      i<- i+1+((k-1)*rescale_gap)+((j-1)*N_loop) 
+    for(L in 1:rescale_gap){
+      i<- L+1+((k-1)*rescale_gap)+((j-1)*N_loop*rescale_gap) 
       spec_state <- states[i-1,]
       all_rates <- rate_calculation(spec_state,adjusted_scales)
       tot_rate <- sum(all_rates)
@@ -467,7 +456,7 @@ for(j in output_gap){
   
   plotting <- cbind(states,t) %>% data.frame() #%>% mutate(t=t)
   
-  sub <- seq(1,N*j,length.out=(N*j)/100)
+  sub <- seq(1,N_loop*rescale_gap*j,length.out=(N_loop*rescale_gap*j)/100)
   sub_plotting<- plotting[sub,]
   
   ggplot(data=sub_plotting, aes(x=t,y=TnB)) + geom_line()
@@ -502,5 +491,7 @@ for(j in output_gap){
   
   csvfn <- paste0(path,"/",j,"/data.csv")
   write.csv(sub_plotting,csvfn)
+  print(j)
 }
 
+print("done")
