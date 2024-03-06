@@ -405,7 +405,7 @@ path <- "Reactions8Naive2-6Tumor1-3" #Change based on order of reactions, dose o
 
 save_curve <- function(path,title){
   fn=paste0(path,"/",title,".png")
-  ggsave(filename=fn)
+  ggsave(filename=fn,create.dir = TRUE)
 }
 
 ggplot(data=sub_plotting, aes(x=t,y=TnB)) + geom_line()
