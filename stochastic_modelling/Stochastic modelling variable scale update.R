@@ -156,7 +156,7 @@ s_mat <- rbind(blood_reactions,react_migration,p_tissue_reactions)
 #Assumptions
 blood_vol <- 5*10^6
 p_tissue_vol <- 1.75*10^6
-tumor_density <- (2/3)*10^6
+tumor_density <- (1/2)*10^7 #Assuming a tumor cell volume of 200 um^3 and a maximally dense tumor
 patient_weight <- 70 #kgs
 
 
@@ -437,6 +437,10 @@ save_curve(path,"TeffP")
 
 tumorp_plot<-ggplot(data=sub_plotting, aes(x=t,y=CD19.P)) + geom_line()
 save_curve(path,"CD19P")
+
+csvfn <- paste0(path,"/data.csv")
+write.csv(sub_plotting,csvfn)
+
 
 #print(ggplot(data=sub_plotting, aes(x=t,y=TnB)) + geom_line())
 #print(ggplot(data=sub_plotting, aes(x=t,y=TcmB)) + geom_line())
