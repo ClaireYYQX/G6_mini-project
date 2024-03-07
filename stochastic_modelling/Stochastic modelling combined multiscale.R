@@ -341,8 +341,8 @@ rate_to_scale <- function(rate){
 #state0_adjust <- c(rep(blood_vol,4),tumor_density,rep(p_tissue_vol,4),tumor_density)
 #state_0 <- state0_base*state0_adjust
 
-state_0  <- c((2*10^6)*patient_weight,0,0,0,0,0,0,0,0,(1*10^3)*tumor_density)
-
+state_0  <- c(((2*10^6)*patient_weight/100),((2*10^6)*patient_weight/3),((2*10^6)*patient_weight/3),((2*10^6)*patient_weight/3),0,0,0,0,0,(500*10^3)*tumor_density) %>% 
+  floor() #To prevent breaking by on a non-integer starting condition
 
 N <- 10^8 #The number of reactions that will occur (jumps)
 rescale_gap <- 10^3  #How many reactions between scales being recalculated
@@ -364,10 +364,10 @@ save_curve <- function(path,iteration,title){
 
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-path <- "Final_models/Reactions8Naive2-6Tumor1-3" #Change based on order of reactions, dose of CAR-T cells/kg and tumor size in ul. Create a directory prior to running
+path <- "Final_models/Reactions8Naive_very_low2-6Tumor500-3" #Change based on order of reactions, dose of CAR-T cells/kg and tumor size in ul. Create a directory prior to running
 
 for(j in 1:output_freq){
-  for(k in 1:N_loop){                 #Loop is as long as the number of jumps givenwa
+  for(k in 1:N_loop){                 #Loop is as long as the number of jumps given
     #Every rescale gap loops the scale is recalculated
     current_iter <- (k-1)*rescale_gap +((j-1)*N_loop*rescale_gap) +1
     recent_state <- states[current_iter,]
