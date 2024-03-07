@@ -364,7 +364,7 @@ save_curve <- function(path,iteration,title){
 
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-path <- "Reactions8Naive2-6Tumor1-3_multiscale_corrected" #Change based on order of reactions, dose of CAR-T cells/kg and tumor size in ul. Create a directory prior to running
+path <- "Final_models/Reactions8Naive2-6Tumor1-3" #Change based on order of reactions, dose of CAR-T cells/kg and tumor size in ul. Create a directory prior to running
 
 for(j in 1:output_freq){
   for(k in 1:N_loop){                 #Loop is as long as the number of jumps givenwa
@@ -380,7 +380,6 @@ for(j in 1:output_freq){
       lapply(rate_to_scale) %>% #Scale according to the rate_to_scale function
       unlist
     
-    rates_recalc <- rate_calculation(recent_state,adjusted_scales)
     s_mat_recalc <- set_smat(adjusted_scales) #New stoicheometric matrix generating according to the scaled rates
     
     for(L in 1:rescale_gap){
