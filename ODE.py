@@ -16,8 +16,8 @@ k12_B = 0.140
 k23_B = 0.191
 k34_B = 0.355
 k5_B = 0
-K0_B = 4*10**6
-KM5_B = 276*10**3
+K0_B = 3.85*10**6
+KM5_B = 204*10**3
 Vmax51_B = 2570
 Vmax52_B = 4040
 Vmax53_B = 3780
@@ -35,8 +35,8 @@ k12_BM = k12_B
 k23_BM = k23_B
 k34_BM = k34_B
 k5_BM = 0.0023
-K0_BM = 1*10**6
-KM5_BM = 276*10**3
+K0_BM = 1.15*10**6
+KM5_BM = 72*10**3
 Vmax51_BM = Vmax51_B
 Vmax52_BM = Vmax52_B
 Vmax53_BM = Vmax53_B
@@ -54,7 +54,7 @@ kCD19_BMB = 0.001
           
 #set tspan
 tStart=0
-tEnd=100
+tEnd=200
 
 
 params = (Vmax1_B,
@@ -158,8 +158,8 @@ def plot_sol(subject_list, i, sol_1, sol_2, sol_3):
     plt.savefig(f'/Users/weiheli/mini-project/G6_mini-project/plots/{subject_list[i]}')
     plt.close()
 
-TN_B_0 = 0
-TCM_B_0 = 20
+TN_B_0 = 100
+TCM_B_0 = 0
 TEM_B_0 = 0
 TE_B_0 = 0
 CD19_B_0 = 0
@@ -167,15 +167,22 @@ TN_BM_0 = 0
 TCM_BM_0 = 0
 TEM_BM_0 = 0
 TE_BM_0 = 0
-CD19_BM_0 = 200*10**3
+CD19_BM_0 = 3000*10**3
 
 y0_1 = np.array([TN_B_0, TCM_B_0, TEM_B_0, TE_B_0, CD19_B_0, TN_BM_0, TCM_BM_0, TEM_BM_0, TE_BM_0, CD19_BM_0])
-y0_2 = np.array([0.001, 20, 0, 0, CD19_B_0, TN_BM_0, TCM_BM_0, TEM_BM_0, TE_BM_0, CD19_BM_0])
-y0_3 = np.array([0.001, 0, 0, 20, CD19_B_0, TN_BM_0, TCM_BM_0, TEM_BM_0, TE_BM_0, CD19_BM_0])
+y0_2 = np.array([30, 20, 20, 30, CD19_B_0, TN_BM_0, TCM_BM_0, TEM_BM_0, TE_BM_0, CD19_BM_0])
+y0_3 = np.array([1, 30, 30, 30, CD19_B_0, TN_BM_0, TCM_BM_0, TEM_BM_0, TE_BM_0, CD19_BM_0])
 t = np.arange(tStart, tEnd, 0.1)
 sol_1 = odeint(CART_PBDK, y0_1, t, args=params)
 sol_2 = odeint(CART_PBDK, y0_2, t, args=params)
 sol_3 = odeint(CART_PBDK, y0_3, t, args=params)
+
+# print(sol_1[800])
+# print(sol_1[600])
+# print(sol_2[800])
+# print(sol_2[600])
+# print(sol_3[800])
+# print(sol_3[600])
 
 
 subject_list = ['TN_B', 'TCM_B', 'TEM_B', 'TE_B', 'CD19_B', 'TN_BM', 'TCM_BM', 'TEM_BM', 'TE_BM', 'CD19_BM']
