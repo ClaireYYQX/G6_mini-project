@@ -7,57 +7,6 @@ species <- c("TnB","TcmB","TemB","TeffB","CD19+B","TnP","TcmP","TemP","TeffP","C
 
 blank_scales <- rep(1,41)
 
-scales_basic <- c(1,#A
-            1,#B
-            1,#C
-            1,#D
-            1,#E
-            1,#F
-            1,#G
-            1,#H
-            1,#I
-            1,#J
-            100,#K
-            100,#L
-            100,#M
-            100,#N
-            100,#O
-            100,#P
-            100,#Q
-            100,#R
-            1,#S
-            1,#T
-            1,#U
-            1,#V
-            1,#Q
-            1,#R
-            1,#S
-            1,#T
-            1,#U
-            1,#V
-            1,#W
-            1,#X
-            1,#Y
-            1,#Z
-            100,#A2
-            1,#B2
-            1,#C2
-            1,#D2
-            1,#E2
-            1,#F2
-            1,#G2
-            100,#H2
-            100,#I2
-            100,#J2
-            100,#K2
-            100,#L2
-            100,#M2
-            100,#N2
-            100 #O2
-)
-
-scales_basic <- 10*scales_basic
-
 #Assumptions
 blood_vol <- 5*10^6
 p_tissue_vol <- 1.75*10^6
@@ -318,8 +267,8 @@ rate_calculation <- function(states,scales){
   
   #Tumor cell induced proliferation in blood
   re_P <- ((Vmax1_B*CD19B*TnB)/(KM1_B+TnB))/scales[16]
-  re_Q <- ((Vmax1_B*CD19B*TcmB)/(KM1_B+TnB))/scales[17]
-  re_R <- ((Vmax1_B*CD19B*TemB)/(KM1_B+TnB))/scales[18]
+  re_Q <- ((Vmax1_B*CD19B*TcmB)/(KM1_B+TcmB))/scales[17]
+  re_R <- ((Vmax1_B*CD19B*TemB)/(KM1_B+TemB))/scales[18]
   
   induce_prolif_B_rates <- c(re_P,re_Q,re_R)
   
@@ -362,8 +311,8 @@ rate_calculation <- function(states,scales){
   
   #Tumor cell induced proliferation in peripheral tissue
   re_M2 <- ((Vmax1_P*CD19P*TnP)/(KM1_P+TnP))/scales[39]
-  re_N2 <- ((Vmax1_P*CD19P*TcmP)/(KM1_P+TnP))/scales[40]
-  re_O2 <- ((Vmax1_P*CD19P*TemP)/(KM1_P+TnP))/scales[41]
+  re_N2 <- ((Vmax1_P*CD19P*TcmP)/(KM1_P+TcmP))/scales[40]
+  re_O2 <- ((Vmax1_P*CD19P*TemP)/(KM1_P+TemP))/scales[41]
   
   induce_prolif_P_rates <- c(re_M2,re_N2,re_O2)
   
@@ -415,7 +364,7 @@ save_curve <- function(path,iteration,title){
 
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-path <- "Reactions8Naive2-6Tumor1-3_multiscale" #Change based on order of reactions, dose of CAR-T cells/kg and tumor size in ul. Create a directory prior to running
+path <- "Reactions8Naive2-6Tumor1-3_multiscale_corrected" #Change based on order of reactions, dose of CAR-T cells/kg and tumor size in ul. Create a directory prior to running
 
 for(j in 1:output_freq){
   for(k in 1:N_loop){                 #Loop is as long as the number of jumps givenwa
@@ -454,34 +403,34 @@ for(j in 1:output_freq){
   sub <- seq(1,N_loop*rescale_gap*j,length.out=(N_loop*rescale_gap*j)/100)
   sub_plotting<- plotting[sub,]
   
-  ggplot(data=sub_plotting, aes(x=t,y=TnB)) + geom_line()
+  ggplot(data=sub_plotting, aes(x=t,y=TnB)) + geom_line() #+ scale_y_continuous(trans="log10")
   save_curve(path, j,"TnB")
   
-  tcmb_plot<-ggplot(data=sub_plotting, aes(x=t,y=TcmB)) + geom_line()
+  tcmb_plot<-ggplot(data=sub_plotting, aes(x=t,y=TcmB)) + geom_line() #+ scale_y_continuous(trans="log10")
   save_curve(path,j,"TcmB")
   
-  temb_plot<-ggplot(data=sub_plotting, aes(x=t,y=TemB)) + geom_line()
+  temb_plot<-ggplot(data=sub_plotting, aes(x=t,y=TemB)) + geom_line() #+ scale_y_continuous(trans="log10")
   save_curve(path,j,"TemB")
   
-  teffb_plot<-ggplot(data=sub_plotting, aes(x=t,y=TeffB)) + geom_line()
+  teffb_plot<-ggplot(data=sub_plotting, aes(x=t,y=TeffB)) + geom_line() #+ scale_y_continuous(trans="log10")
   save_curve(path,j,"TeffB")
   
-  tumorb_plot<-ggplot(data=sub_plotting, aes(x=t,y=CD19.B)) + geom_line()
+  tumorb_plot<-ggplot(data=sub_plotting, aes(x=t,y=CD19.B)) + geom_line() #+ scale_y_continuous(trans="log10")
   save_curve(path,j,"CD19B")
   
-  tnp_plot<-ggplot(data=sub_plotting, aes(x=t,y=TnP)) + geom_line()
+  tnp_plot<-ggplot(data=sub_plotting, aes(x=t,y=TnP)) + geom_line() #+ scale_y_continuous(trans="log10")
   save_curve(path,j,"Tnp")
   
-  tcmp_plot<-ggplot(data=sub_plotting, aes(x=t,y=TcmP)) + geom_line()
+  tcmp_plot<-ggplot(data=sub_plotting, aes(x=t,y=TcmP)) + geom_line() #+ scale_y_continuous(trans="log10")
   save_curve(path,j,"Tcmp")
   
-  temp_plot<-ggplot(data=sub_plotting, aes(x=t,y=TemP)) + geom_line()
+  temp_plot<-ggplot(data=sub_plotting, aes(x=t,y=TemP)) + geom_line() #+ scale_y_continuous(trans="log10")
   save_curve(path,j,"TemP")
   
-  teffp_plot<- ggplot(data=sub_plotting, aes(x=t,y=TeffP)) + geom_line()
+  teffp_plot<- ggplot(data=sub_plotting, aes(x=t,y=TeffP)) + geom_line() #+ scale_y_continuous(trans="log10")
   save_curve(path,j,"TeffP")
   
-  tumorp_plot<-ggplot(data=sub_plotting, aes(x=t,y=CD19.P)) + geom_line()
+  tumorp_plot<-ggplot(data=sub_plotting, aes(x=t,y=CD19.P)) + geom_line() #+ scale_y_continuous(trans="log10")
   save_curve(path,j,"CD19P")
   
   csvfn <- paste0(path,"/",j,"/data.csv")
