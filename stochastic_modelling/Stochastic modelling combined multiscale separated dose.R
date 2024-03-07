@@ -341,12 +341,12 @@ dose1 <- c((1*10^6)*patient_weight,0,0,0) #units of cells
 dose2 <- c((1*10^6)*patient_weight,0,0,0)
 dose_seperation <- 7 #days
 
-initial_tumor_size <- 50*10^3 #ul (=10^-3 ml)
+initial_tumor_size <- 1*10^3 #ul (=10^-3 ml)
  
 N <- 10^8 #The number of reactions that will occur (jumps)
 rescale_gap <- 10^3  #How many reactions between scales being recalculated
 
-path <- "Final_models/Reactions8Naive_very_low2-6Tumor500-3" #Change based on order of reactions, dose of CAR-T cells/kg and tumor size in ul.
+path <- "Final_models/Reactions8Naive_split_7_2-6Tumor1-3" #Change based on order of reactions, dose of CAR-T cells/kg and tumor size in ul.
 
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -370,47 +370,47 @@ save_curve <- function(path,iteration,title){
   ggsave(filename=fn,create.dir = TRUE)
 }
 
-i<-1
 j<-1 #Holdover from a previous form of the code
 check <- 0
 
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-while(t[i]<400){
-  for(k in 1:N_loop){                 #Loop is as long as the number of jumps given
-    #Every rescale gap loops the scale is recalculated
-    current_iter <- (k-1)*rescale_gap +((j-1)*N_loop*rescale_gap) +1
-    recent_state <- states[current_iter,]
+
+for(k in 1:N_loop){                 #Loop is as long as the number of jumps given
+  #Every rescale gap loops the scale is recalculated
+  current_iter <- (k-1)*rescale_gap +1
+  recent_state <- states[current_iter,]
+  
+  rates_0 <- rate_calculation(recent_state,blank_scales) #Calculates the unadjusted rate of each reaction
+  
+  adjusted_scales <- (rates_0+0.001) %>% #To not break for rate=0
+    log(base=10) %>% 
+    floor() %>% #convert to an order of magnitude
+    lapply(rate_to_scale) %>% #Scale according to the rate_to_scale function
+    unlist
+  
+  s_mat_recalc <- set_smat(adjusted_scales) #New stoicheometric matrix generating according to the scaled rates
+  
+  for(L in 1:rescale_gap){
+    i<- L+1+((k-1)*rescale_gap)
+    spec_state <- states[i-1,]
+    all_rates <- rate_calculation(spec_state,adjusted_scales)
+    tot_rate <- sum(all_rates)
     
-    rates_0 <- rate_calculation(recent_state,blank_scales) #Calculates the unadjusted rate of each reaction
+    dt[i-1]<- (-log(runif(1)))/tot_rate
+    t[i]<-t[i-1]+dt[i-1] #Update time
     
-    adjusted_scales <- (rates_0+0.001) %>% #To not break for rate=0
-      log(base=10) %>% 
-      floor() %>% #convert to an order of magnitude
-      lapply(rate_to_scale) %>% #Scale according to the rate_to_scale function
-      unlist
-    
-    s_mat_recalc <- set_smat(adjusted_scales) #New stoicheometric matrix generating according to the scaled rates
-    
-    for(L in 1:rescale_gap){
-      i<- L+1+((k-1)*rescale_gap)+((j-1)*N_loop*rescale_gap) 
-      spec_state <- states[i-1,]
-      all_rates <- rate_calculation(spec_state,adjusted_scales)
-      tot_rate <- sum(all_rates)
-      
-      dt[i-1]<- (-log(runif(1)))/tot_rate
-      t[i]<-t[i-1]+dt[i-1] #Update time
-      
-      choice<-sample.int(length(all_rates),1,prob=all_rates) #Choose one of the reactions at random to occur, proportional to the rate of each reaction
-      states[i,]<-states[i-1,]+s_mat_recalc[choice,] #Update state matrix
-      
-      if (check == 0 && t[i] > dose_seperation){
-        check <-1
-        states[i,] <- states[i,] + dose_2_complete
-      }
-    } #End of loop for each jump
+    choice<-sample.int(length(all_rates),1,prob=all_rates) #Choose one of the reactions at random to occur, proportional to the rate of each reaction
+    states[i,]<-states[i-1,]+s_mat_recalc[choice,] #Update state matrix
+    }
+  if (check == 0 & t[i] > dose_seperation){
+    check <-1
+    states[i,] <- states[i,] + dose_2_complete
   }
-}
+  if(t[i]>400){
+    break
+  }
+} #End of loop for each jump
 
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------
 
