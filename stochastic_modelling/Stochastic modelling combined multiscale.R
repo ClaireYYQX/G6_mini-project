@@ -369,7 +369,7 @@ path <- "Reactions8Naive2-6Tumor1-3_multiscale_corrected" #Change based on order
 for(j in 1:output_freq){
   for(k in 1:N_loop){                 #Loop is as long as the number of jumps givenwa
     #Every rescale gap loops the scale is recalculated
-    current_iter <- (k-1)*rescale_gap +(j-1)*N_loop +1
+    current_iter <- (k-1)*rescale_gap +((j-1)*N_loop*rescale_gap) +1
     recent_state <- states[current_iter,]
     
     rates_0 <- rate_calculation(recent_state,blank_scales) #Calculates the unadjusted rate of each reaction
