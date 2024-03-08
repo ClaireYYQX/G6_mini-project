@@ -10,6 +10,8 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import subprocess
 import re
+import shutil
+import os
 
 
 #Run Smoldyn from command line
@@ -24,11 +26,13 @@ def run_smoldyn(input_file, output_file_smoldyn):
     # Decode the output to string
     #output_text = stdout.decode('utf-8')
     smoldyn_output = output_file_smoldyn
+    folder = "Output/"
+    shutil.move(smoldyn_output, folder)
    # with open(output_file_path, 'r') as file:
         #smoldyn_output = file.read()
     
     # Do something with the output
-    return(smoldyn_output)
+    return(f"Output/{smoldyn_output}")
         
    
 
@@ -63,14 +67,24 @@ def plot_everything(output_file):
     plt.show()
     
 
+def get_best_dose(output_path):
+    file = pd.read_csv(output_path, sep =' ')
+    df = pd.DataFrame(file)
+    min_tumour_values = []
+    tumour_blood = df.iloc[:, 5]
+    tumour_bm = df.iloc[:, 14] + df.iloc[:, 19]
+    tumour_total = tumour_blood + tumour_bm
+    min_value = min(tumour_total)
+    min_tumour_values.append(min_value)
+
 
 
 
 
 ##Plot by compartment
-def plot_tumour(output_file):
+def plot_tumour(output_path):
     #Get output file from smoldyn
-    file = pd.read_csv(output_file, sep =' ')
+    file = pd.read_csv(output_path, sep =' ')
     df = pd.DataFrame(file)
     
     #Isolate time points
@@ -80,6 +94,7 @@ def plot_tumour(output_file):
     tumour_blood = df.iloc[:, 5]
     tumour_bm = df.iloc[:, 14] + df.iloc[:, 19]
     tumour_total = tumour_blood + tumour_bm
+    min_value = min(tumour_total)
     
     fig, ax = plt.subplots()
     plt.plot(x, tumour_blood, label = "Tumour Blood")
@@ -98,9 +113,9 @@ def plot_tumour(output_file):
     # plt.title("Total change in tumour abundance during CAR-T therapy")
     plt.xlabel("Time Points (days)")
     plt.ylabel("Abundance")
-    plt.legend(loc = 'upper right')
-    filename = f"{output_file}_tumour"
-    fig.savefig(f"/Plots/{filename}.png", dpi = 100)
+    plt.legend(loc = 'center right')
+    filename = os.path.basename(output_path)
+    fig.savefig(f"Plots/{filename}.png", dpi = 100)
     
 
 def plot_tcell_total(output_file):
@@ -203,7 +218,7 @@ for i in geometric_sequence:
     
     for z,line in enumerate(lines):
         if "define K_ON" in line:
-            lines[x] = "define K_ON " + z
+            lines[z] = "define K_ON " + str(i) +"\n"
     #Write back changes to file
     with open(input_file, 'w') as file:
         file.writelines(lines)
@@ -219,39 +234,36 @@ for i in geometric_sequence:
             lines = file.readlines()
         
         for x,line in enumerate(lines):
-            if "compartment_mol \d+ TnB blood" in line:
-                match = re.search(r'\d+', line)
-                if match:
-                    lines[x] = re.sub(r'\d+', num_Tn , line)
+            if "compartment_mol" and "TnB blood" in line:
+                lines[x] = "compartment_mol " + str(num_Tn) + " TnB blood\n"
             
-            elif "compartment_mol \d+ TcmB blood" in line:
-                match = re.search(r'\d+', line)
-                if match:
-                    lines[x] = re.sub(r'\d+', num_Tcm , line)
+            elif "compartment_mol" and "TcmB blood" in line:
+                lines[x] = "compartment_mol " + str(num_Tcm) + " TcmB blood\n"
             
-            elif "compartment_mol \d+ TemB blood" in line:
-                match = re.search(r'\d+', line)
-                if match:
-                    lines[x] = re.sub(r'\d+', num_Tem , line)
+            elif "compartment_mol" and "TemB blood" in line:
+                lines[x] = "compartment_mol " + str(num_Tem) + " TemB blood\n"
             
-            elif "compartment_mol \d+ TeffB blood" in line:
-                match = re.search(r'\d+', line)
-                if match:
-                    lines[x] = re.sub(r'\d+', num_Teff , line)
+            elif "compartment_mol" and "TeffB blood" in line:
+                lines[x] = "compartment_mol " + str(num_Teff) + " TeffB blood\n"
             
             #Finally need to change save of file
             elif "output_files" in line:
                 lines[x] = "output_files " + output_file_name +"\n"
             
             elif "cmd i 0 1000 0.01 molcount" in line:
-                lines[x] = "cmd i 0 1000 0.01 molcount" + output_file_name +"\n"
+                lines[x] = "cmd i 0 1000 0.01 molcount " + output_file_name +"\n"
                 
         #Write back changes to file
         with open(input_file, 'w') as file:
             file.writelines(lines)
         
-        run_smoldyn(input_file, output_file_name)
-        plot_tumour(output_file_name)
+        smoldyn_out = run_smoldyn(input_file, output_file_name)
+        plot_tumour(smoldyn_out)
+       
+        
+
+print(best_effort)
         
     
     
+

@@ -6,10 +6,8 @@
 
 
 #List of parameters
-define K_ON_B 10
-define K_ON_P 10
-define K_OFF 2.5 # per day
-define V_growth 2.03 #per day
+define K_ON 1e-06
+define K_OFF 2
 
 
 #System dimensionality
@@ -176,10 +174,10 @@ end_compartment
 
 #Initial conditions
 compartment_mol 1500 CD19_micro ball
-compartment_mol 100 TnB blood
-compartment_mol 0 TcmB blood
-compartment_mol 0 TemB blood
-compartment_mol 0 TeffB blood
+compartment_mol 61.0 TnB blood
+compartment_mol 13.0 TcmB blood
+compartment_mol 13.0 TemB blood
+compartment_mol 13.0 TeffB blood
 
 #############################################################################################################
 #Reactions
@@ -191,30 +189,30 @@ reaction D TeffB -> 0 0.518
 
 ##Tumour Complex Formation & Dissociation
 ###blood
-reaction E_B TnB + CD19B -> Comp_TnB K_ON_B
-reaction F_B TcmB + CD19B -> Comp_TcmB K_ON_B
-reaction G_B TemB + CD19B -> Comp_TemB K_ON_B
-reaction H_B TeffB + CD19B -> Comp_TeffB K_ON_B
+reaction E_B TnB + CD19B -> Comp_TnB K_ON
+reaction F_B TcmB + CD19B -> Comp_TcmB K_ON
+reaction G_B TemB + CD19B -> Comp_TemB K_ON
+reaction H_B TeffB + CD19B -> Comp_TeffB K_ON
 reaction I_B Comp_TnB -> TnB + CD19B K_OFF
 reaction J_B Comp_TcmB -> TcmB + CD19B K_OFF
 reaction K_B Comp_TemB -> TemB + CD19B K_OFF
 reaction L_B Comp_TeffB -> TeffB + CD19B K_OFF
 
 ###peripheral tissue
-reaction E_P TnP + CD19P -> Comp_TnP K_ON_P
-reaction F_P TcmP + CD19P -> Comp_TcmP K_ON_P
-reaction G_P TemP + CD19P -> Comp_TemP K_ON_P
-reaction H_P TeffP + CD19P -> Comp_TeffP K_ON_P
+reaction E_P TnP + CD19P -> Comp_TnP K_ON
+reaction F_P TcmP + CD19P -> Comp_TcmP K_ON
+reaction G_P TemP + CD19P -> Comp_TemP K_ON
+reaction H_P TeffP + CD19P -> Comp_TeffP K_ON
 reaction I_P Comp_TnP -> TnP + CD19P K_OFF
 reaction J_P Comp_TcmP -> TcmP + CD19P K_OFF
 reaction K_P Comp_TemP -> TemP + CD19P K_OFF
 reaction L_P Comp_TeffP -> TeffP + CD19P K_OFF
 
 ###microenvironment
-reaction E_m TnP + CD19_micro -> Comp_Tn_micro K_ON_P
-reaction F_m TcmP + CD19_micro -> Comp_Tcm_micro K_ON_P
-reaction G_m TemP + CD19_micro -> Comp_Tem_micro K_ON_P
-reaction H_m TeffP + CD19_micro -> Comp_Teff_micro K_ON_P
+reaction E_m TnP + CD19_micro -> Comp_Tn_micro K_ON
+reaction F_m TcmP + CD19_micro -> Comp_Tcm_micro K_ON
+reaction G_m TemP + CD19_micro -> Comp_Tem_micro K_ON
+reaction H_m TeffP + CD19_micro -> Comp_Teff_micro K_ON
 reaction I_m Comp_Tn_micro -> TnP + CD19_micro K_OFF
 reaction J_m Comp_Tcm_micro -> TcmP + CD19_micro K_OFF
 reaction K_m Comp_Tem_micro -> TemP + CD19_micro K_OFF
@@ -250,29 +248,29 @@ reaction P_m CD19_micro -> CD19_micro + CD19_micro 0.00023
 
 ##Complex mediated proliferation & tumour death
 ###blood
-reaction T1_B Comp_TnB -> TnB + TnB + CD19B 0.0007
+reaction T1_B Comp_TnB -> TnB + TnB + CD19B 2
 reaction T2_B Comp_TnB -> TnB 1
-reaction U1_B Comp_TcmB -> TcmB + TcmB + CD19B 0.010
-reaction U2_B Comp_TcmB -> TcmB 2
-reaction V1_B Comp_TemB -> TemB + TemB + CD19B 0.042
+reaction U1_B Comp_TcmB -> TcmB + TcmB + CD19B 2
+reaction U2_B Comp_TcmB -> TcmB 1
+reaction V1_B Comp_TemB -> TemB + TemB + CD19B 1
 reaction V2_B Comp_TemB -> TemB 3
 reaction W_B Comp_TeffB -> TeffB 5
 
 ###peripheral tissue
-reaction T1_P Comp_TnP -> TnP + TnP + CD19P 0.0007
+reaction T1_P Comp_TnP -> TnP + TnP + CD19P 2
 reaction T2_P Comp_TnP -> TnP 1
-reaction U1_P Comp_TcmP -> TcmP + TcmP + CD19P 0.010
-reaction U2_P Comp_TcmP -> TcmP 2
-reaction V1_P Comp_TemP -> TemP + TemP + CD19P 0.042
+reaction U1_P Comp_TcmP -> TcmP + TcmP + CD19P 2
+reaction U2_P Comp_TcmP -> TcmP 1
+reaction V1_P Comp_TemP -> TemP + TemP + CD19P 1
 reaction V2_P Comp_TemP -> TemP 3
 reaction W_P Comp_TeffP -> TeffP 5
 
 ###microenvironment
-reaction T1_m Comp_Tn_micro -> TnP + TnP + CD19_micro 0.0007
+reaction T1_m Comp_Tn_micro -> TnP + TnP + CD19_micro 2
 reaction T2_m Comp_Tn_micro -> TnP 1
-reaction U1_m Comp_Tcm_micro -> TcmP + TcmP + CD19_micro 0.010
-reaction U2_m Comp_Tcm_micro -> TcmP 2
-reaction V1_m Comp_Tem_micro -> TemP + TemP + CD19_micro 0.042
+reaction U1_m Comp_Tcm_micro -> TcmP + TcmP + CD19_micro 2
+reaction U2_m Comp_Tcm_micro -> TcmP 1
+reaction V1_m Comp_Tem_micro -> TemP + TemP + CD19_micro 1
 reaction V2_m Comp_Tem_micro -> TemP 3
 reaction W_m Comp_Teff_micro -> TeffP 5
 
@@ -283,5 +281,7 @@ reaction Y CD19P + CD19P -> CD19P 0.0003
 reaction Z CD19_micro + CD19_micro -> CD19_micro 0.0003
 #############################################################################################################
 
-output_files out_Teff0.0_KON1e-06.txt
+output_files out_Teff13.0_KON1e-06.txt
+cmd i 0 1000 0.01 molcount out_Teff13.0_KON1e-06.txt
+
 end_file
