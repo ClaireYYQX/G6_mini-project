@@ -22,7 +22,7 @@ ax.set_yticks(ticks=np.arange(len(pairwise.columns)), labels = pairwise.columns,
 
 bounds = np.arange(len(colors)+1)
 tick_positions = (bounds[:-1] + bounds[1:]) / 2.7
-tick_labels = ["Exhausted Phenotype", "T-Cell Expansion Only", "Cytokine Production Only", "Both"]
+tick_labels = ["Exhausted Phenotype", "T-Cell Expansion Only", "Cytokine Production Only", " Both (Effector Phenotype)"]
 
 
 cbar=fig.colorbar(heatmap, ticks = tick_positions)
