@@ -337,20 +337,20 @@ rate_to_scale <- function(rate){
 
 #INPUTS:
 
-total_dose <- 10*10^6*patient_weight
+total_dose <- 2*10^6*patient_weight
 
-dose1 <- c(total_dose/1,0,0,0) #units of cells
-dose2 <- c((1*10^6)*patient_weight,0,0,0)
-dose_seperation <- 7 #days
+dose1 <- total_dose*c(0.5,0,0,0) #units of cells
+dose2 <- total_dose*c(0.5,0,0,0)
+dose_seperation <- 10 #days
 
-check=1 # 1 = single dose, 0 = 2 doses
+check=0 # 1 = single dose, 0 = 2 doses
 
 initial_tumor_size <- 100*10^3 #ul (=10^-3 ml)
  
 N <- 10^8 #The number of reactions that will occur (jumps)
 rescale_gap <- 10^3  #How many reactions between scales being recalculated
 
-path <- "SAT_models/2" #Change based on order of reactions, dose of CAR-T cells/kg and tumor size in ul.
+path <- "SAT_models/12" #Change based on order of reactions, dose of CAR-T cells/kg and tumor size in ul.
 
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -405,18 +405,18 @@ for(k in 1:N_loop){                 #Loop is as long as the number of jumps give
       stop <- 1
       break
     }
-      dt[i-1]<- (-log(runif(1)))/tot_rate
-      t[i]<-t[i-1]+dt[i-1] #Update time
-      choice<-sample.int(length(all_rates),1,prob=all_rates) #Choose one of the reactions at random to occur, proportional to the rate of each reaction
-      states[i,]<-states[i-1,]+s_mat_recalc[choice,] #Update state matrix
+    dt[i-1]<- (-log(runif(1)))/tot_rate
+    t[i]<-t[i-1]+dt[i-1] #Update time
+    choice<-sample.int(length(all_rates),1,prob=all_rates) #Choose one of the reactions at random to occur, proportional to the rate of each reaction
+    states[i,]<-states[i-1,]+s_mat_recalc[choice,] #Update state matrix
+    if (check == 0 & t[i] > dose_seperation){   #If it's time for the second dose and it hasn't been given yet
+      check <-1 #Indicate not to do it again
+      states[i,] <- states[i,] + dose_2_complete #Add the second dose
+      }  
     }
-  if (stop == 1){
+  if (stop == 1){ #If you broke out of the inner loop for all rates going to 0, also break out of the inner loop immediately
     break
   } 
-  if (check == 0 & t[i] > dose_seperation){   #If it's time for the second dose and it hasn't been given yet
-    check <-1 #Indicate not to do it again
-    states[i,] <- states[i,] + dose_2_complete #Add the second dose
-   }
   if(t[i]>400){ 
     break #The loop can stop early once time reaches 400 days
   }
