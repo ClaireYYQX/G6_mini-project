@@ -1,0 +1,287 @@
+#Date created: 5/03/2023
+#Title: 3D stochastic modelling of CAR T cell immunophenotypes and their interactions with a diffuse tumour with variable rates
+#Notes:
+##Does not consider a tumour microenvironment, all T cells can pass into the tumour ball
+##Tumour ball tumour cells have restricted diffusion to keep them in the ball, are more diffuse when they leave. Allows for differential proliferation rates of tumours and diffusion of tumours but not of T cells.
+
+
+#List of parameters
+define K_ON 200
+define K_OFF 2.5 # per day
+define V_growth 2.03 #per day
+
+
+#System dimensionality
+dim 3
+boundaries x 0 100
+boundaries y 0 100
+boundaries z 0 100
+time_start 0
+time_stop 1000
+time_step 0.01
+
+#Species
+species TnB TcmB TemB TeffB CD19B Comp_TnB Comp_TcmB Comp_TemB Comp_TeffB TnP TcmP TemP TeffP CD19P Comp_TnP Comp_TcmP Comp_TemP Comp_TeffP CD19_micro Comp_Tn_micro Comp_Tcm_micro Comp_Tem_micro Comp_Teff_micro
+
+##Specific colours - by compartment (incomplete)
+#color Tn* lightred
+#color Tcm? lightorange
+#color Tem? lightgreen
+#color Teff? lightblue
+#color CD19? slate
+#color Tn_micro pink
+#color Tcm_micro brown
+#color Tem_micro khaki
+#color Teff_micro cyan
+#color CD19_micro azure
+#color Comp_Tn? darkred
+#color Comp_Tcm? darkorange
+#color Comp_Tem? darkgreen
+#color Comp_Teff? darkblue
+
+##General colors - not by compartment
+color Tn* lightred
+color Tcm* lightorange
+color Tem* lightgreen
+color Teff* lightblue
+color Comp_Tn* darkred
+color Comp_Tcm* darkorange
+color Comp_Tem* darkgreen
+color Comp_Teff* darkblue
+color CD19* slate
+
+#Particle sizes (aesthetic only)
+display_size T* 0.5
+display_size CD19* 0.75
+display_size Comp* 1
+
+difc T*B 10000
+difc T*P 5000
+difc Comp* 1250
+difc CD19* 1500
+difc CD19_micro 0.1
+
+
+#Graphics
+#graphics opengl_good
+#graphic_iter 5
+#frame_thickness 0
+
+#############################################################################################################
+#Surfaces
+##Boundaries of system
+start_surface leftWall
+color both purple 1
+polygon both edge
+action both all reflect
+panel rect +0 0 0 0 100 100
+end_surface
+
+start_surface rightWall
+color both purple 1
+polygon both edge
+action both all reflect
+panel rect +0 100 0 0 100 100 
+end_surface
+
+start_surface frontWall
+color both purple 1
+polygon both edge
+action both all reflect
+panel rect +1 0 0 0 100 100
+end_surface
+
+start_surface backWall
+color both purple 1
+polygon both edge
+action both all reflect
+panel rect +1 0 100 0 100 100
+end_surface
+
+
+start_surface topWall
+color both purple 1
+polygon both edge
+action both all reflect
+panel rect +2 0 0 100 100 100 
+end_surface
+
+start_surface bottomWall
+color both purple 1
+polygon both edge
+action both all reflect
+panel rect +2 0 0 0 100 100
+end_surface
+
+##Permeable membrane between 2 compartments - alter rate values
+start_surface middleWall
+color front lightyellow 0.5
+color back lightred 0.5
+polygon both fe
+action both Comp* reflect
+action back CD19B reflect
+rate TnP fsoln bsoln 0.176 TnB
+rate TnB bsoln fsoln 0.11 TnP
+rate TcmP fsoln bsoln 0.176 TcmB
+rate TcmB bsoln fsoln 0.11 TcmP
+rate TemP fsoln bsoln 0.176 TemB
+rate TemB bsoln fsoln 0.11 TemP
+rate TeffP fsoln bsoln 0.176 TeffB
+rate TeffB bsoln fsoln 0.11 TeffP
+rate CD19P fsoln bsoln 0.001 CD19B
+panel rect +0 74 0 0 100 100
+end_surface
+
+##Tumour compartment to simulate tumour ball
+start_surface ball
+color both purple 0
+polygon both edge
+action both Comp* reflect
+rate CD19_micro bsoln fsoln -1 CD19P
+rate CD19P fsoln bsoln -1 CD19_micro
+panel sph 85 50 50 7.5 10 10
+end_surface
+#############################################################################################################
+
+#############################################################################################################
+#Compartments
+start_compartment blood
+surface topWall
+surface bottomWall
+surface leftWall
+surface middleWall
+surface frontWall
+surface backWall
+point 25 50 50
+end_compartment
+
+
+start_compartment peripheral
+surface topWall
+surface bottomWall
+surface rightWall
+surface middleWall
+surface frontWall
+surface backWall
+surface ball
+point 75 50 50
+end_compartment
+
+start_compartment ball
+surface ball
+point 85 50 50
+end_compartment
+#############################################################################################################
+
+#Initial conditions
+compartment_mol 1500 CD19_micro ball
+compartment_mol 28.0 TnB blood
+compartment_mol 24.0 TcmB blood
+compartment_mol 24.0 TemB blood
+compartment_mol 24.0 TeffB blood
+
+#############################################################################################################
+#Reactions
+##T cell Elimination
+reaction A TnB -> 0 0.0104
+reaction B TcmB -> 0 0.0104
+reaction C TemB -> 0 0.0104
+reaction D TeffB -> 0 0.518
+
+##Tumour Complex Formation & Dissociation
+###blood
+reaction E_B TnB + CD19B -> Comp_TnB K_ON
+reaction F_B TcmB + CD19B -> Comp_TcmB K_ON
+reaction G_B TemB + CD19B -> Comp_TemB K_ON
+reaction H_B TeffB + CD19B -> Comp_TeffB K_ON
+reaction I_B Comp_TnB -> TnB + CD19B K_OFF
+reaction J_B Comp_TcmB -> TcmB + CD19B K_OFF
+reaction K_B Comp_TemB -> TemB + CD19B K_OFF
+reaction L_B Comp_TeffB -> TeffB + CD19B K_OFF
+
+###peripheral tissue
+reaction E_P TnP + CD19P -> Comp_TnP K_ON
+reaction F_P TcmP + CD19P -> Comp_TcmP K_ON
+reaction G_P TemP + CD19P -> Comp_TemP K_ON
+reaction H_P TeffP + CD19P -> Comp_TeffP K_ON
+reaction I_P Comp_TnP -> TnP + CD19P K_OFF
+reaction J_P Comp_TcmP -> TcmP + CD19P K_OFF
+reaction K_P Comp_TemP -> TemP + CD19P K_OFF
+reaction L_P Comp_TeffP -> TeffP + CD19P K_OFF
+
+###microenvironment
+reaction E_m TnP + CD19_micro -> Comp_Tn_micro K_ON
+reaction F_m TcmP + CD19_micro -> Comp_Tcm_micro K_ON
+reaction G_m TemP + CD19_micro -> Comp_Tem_micro K_ON
+reaction H_m TeffP + CD19_micro -> Comp_Teff_micro K_ON
+reaction I_m Comp_Tn_micro -> TnP + CD19_micro K_OFF
+reaction J_m Comp_Tcm_micro -> TcmP + CD19_micro K_OFF
+reaction K_m Comp_Tem_micro -> TemP + CD19_micro K_OFF
+reaction L_m Comp_Teff_micro -> TeffP + CD19_micro K_OFF
+
+##Differentiation
+reaction M_B TnB -> TcmB 0.14 #per day per cell
+reaction N_B TcmB -> TemB 0.191 
+reaction O_B TemB -> TeffB 0.355
+
+reaction M_P TnP -> TcmP 0.14 #per day per cell
+reaction N_P TcmP -> TemP 0.191 
+reaction O_P TemP -> TeffP 0.355
+
+
+
+##Baseline Proliferation (per day per cell)
+###blood
+reaction P_B CD19B -> CD19B + CD19B 0.00023 
+reaction Q_B TnB -> TnB + TnB  0.0005
+reaction R_B TcmB -> TcmB + TcmB 0.007
+reaction S_B TemB -> TemB + TemB 0.007
+
+###peripheral tissue
+reaction P_P CD19P -> CD19P + CD19P 0.00023 
+reaction Q_P TnP -> TnP + TnP  0.0005
+reaction R_P TcmP -> TcmP + TcmP 0.007
+reaction S_P TemP -> TemP + TemP 0.007
+
+###microenvironment
+reaction P_m CD19_micro -> CD19_micro + CD19_micro 0.00023
+
+
+##Complex mediated proliferation & tumour death
+###blood
+reaction T1_B Comp_TnB -> TnB + TnB + CD19B 0.07
+reaction T2_B Comp_TnB -> TnB 0.01
+reaction U1_B Comp_TcmB -> TcmB + TcmB + CD19B 1
+reaction U2_B Comp_TcmB -> TcmB 0.1
+reaction V1_B Comp_TemB -> TemB + TemB + CD19B 4.2
+reaction V2_B Comp_TemB -> TemB 1
+reaction W_B Comp_TeffB -> TeffB 3
+
+###peripheral tissue
+reaction T1_P Comp_TnP -> TnP + TnP + CD19P 0.07
+reaction T2_P Comp_TnP -> TnP 0.01
+reaction U1_P Comp_TcmP -> TcmP + TcmP + CD19P 1
+reaction U2_P Comp_TcmP -> TcmP 0.1
+reaction V1_P Comp_TemP -> TemP + TemP + CD19P 4.2
+reaction V2_P Comp_TemP -> TemP 1
+reaction W_P Comp_TeffP -> TeffP 3
+
+###microenvironment
+reaction T1_m Comp_Tn_micro -> TnP + TnP + CD19_micro 0.07
+reaction T2_m Comp_Tn_micro -> TnP 0.01
+reaction U1_m Comp_Tcm_micro -> TcmP + TcmP + CD19_micro 1
+reaction U2_m Comp_Tcm_micro -> TcmP 0.1
+reaction V1_m Comp_Tem_micro -> TemP + TemP + CD19_micro 4.2
+reaction V2_m Comp_Tem_micro -> TemP 1
+reaction W_m Comp_Teff_micro -> TeffP 3
+
+
+##Tumour competition for logisitc growth
+reaction X CD19B + CD19B -> CD19B 0.0009
+reaction Y CD19P + CD19P -> CD19P 0.0003
+reaction Z CD19_micro + CD19_micro -> CD19_micro 0.0003
+#############################################################################################################
+
+output_files out_Teff24.0_KON200_rep2.txt
+cmd i 0 1000 0.01 molcount out_Teff24.0_KON200_rep2.txt
+end_file
